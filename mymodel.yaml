@@ -1,0 +1,50 @@
+# My simple model
+
+name: simple model
+
+symbols:
+    states: [K]
+    controls: [C, H]
+    exogenous: [A]
+    parameters: [beta, delta, alpha, eta]
+
+definitions:
+    Y: A*H^alpha*K^(1-alpha)
+    w: alpha*A*H^alpha*K^(1-alpha)/H
+    r: (1-alpha)*A*H^alpha*K^(1-alpha)/K
+
+equations:
+
+    arbitrage:
+        -eta*C - w*H
+        - 1 - beta*c(1)/c*(1-delta+r(1)) | 0 <= c <= inf
+
+    transition:
+        - K = w(-1)*H(-1) + r(-1)*K(-1) + (1-delta)*K(-1) - C(-1)
+
+
+calibration:
+    # parameters
+    beta: 0.95
+    delta: 0.025
+    alpha: 0.67
+    eta: 0.2
+
+    # steady_state
+    H: 0.33
+    r: 1-beta*(1-delta)
+    K: ((1-alpha)*A/(1-beta*(1-delta)))^(1/alpha)*H
+    Y: A*H^alpha*K^(1-alpha)
+    w: alpha*Y/H
+    C: -w*H/eta
+
+
+domain:
+    K: [0.5*K, 1.5*K]
+
+exogenous: 
+    A: 1.02
+
+options:
+    grid: !Cartesian
+        orders: [40, 10, 10]
